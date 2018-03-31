@@ -22,15 +22,15 @@ add for once a day:
 
 # backup gitolite
 echo "#### HOST: gitolite.example.com"
-backup_gitolite "git@gitolite.example.com" "backup_gitolite_example_com/"
+backup-gitolite "git@gitolite.example.com" "backup_gitolite_example_com/"
 
 # backup gitlab
 echo "#### HOST: gitolab.example.com"
-backup_gitlab "gitlab.example.com" "1234TOKENABC" "backup_gitlab_example_com/"
+backup-gitlab "gitlab.example.com" "1234TOKENABC" "backup_gitlab_example_com/"
 
 # backup github
 echo "#### HOST: github.example.com"
-backup_github simonwalz "backup_github_com/"
+backup-github simonwalz "backup_github_com/"
 ```
 
 ## Usage: backup-git-repo
