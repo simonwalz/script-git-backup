@@ -37,7 +37,10 @@ then
 	GITLAB_URL="${FETCH_PROTO}://${GITLAB_USER}:${GITLAB_TOKEN}@${GITLAB_HOST}/"
 fi
 
-REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v3/projects" | php -r 'echo join("\n",array_map(function($a){return $a["path_with_namespace"];},json_decode(file_get_contents("php://stdin"),1)))."\n";')"
+REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1" | php -r 'echo join("\n",array_map(function($a){return $a["path_with_namespace"];},json_decode(file_get_contents("php://stdin"),1)))."\n";')"
+
+echo $REPOS
+#exit
 
 for r in $REPOS
 do
