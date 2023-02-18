@@ -1,6 +1,10 @@
 #!/bin/sh
 # Simon Walz, 2015
 
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
+
+
 GITOLITE_HOST="$1"
 if test "x${GITOLITE_HOST}" = "x"
 then
@@ -30,9 +34,9 @@ do
 	if echo "${r}" | grep -E "\[|@" >/dev/null
 	then
 		ignore=1
-	fi	
+	fi
 
 	if test "x$ignore" != "x1"; then
-		backup-git-repo "${GITOLITE_HOST}:${r}" "${PREFIX}${rl}"
+		"${SCRIPTDIR}/backup-git-repo" "${GITOLITE_HOST}:${r}" "${PREFIX}${rl}"
 	fi
 done

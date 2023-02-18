@@ -1,5 +1,8 @@
 #!/bin/sh
 
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
+
 GITLAB_HOST="$1"
 GITLAB_TOKEN="$2"
 PREFIX="$3"
@@ -54,7 +57,7 @@ do
 	fi
 
 	if test "x${ignore}" != "x1"; then
-		backup-git-repo "${GITLAB_URL}${r}.git" "${PREFIX}${r}"
+		"${SCRIPTDIR}/backup-git-repo" "${GITLAB_URL}${r}.git" "${PREFIX}${r}"
 	fi
 done
 
