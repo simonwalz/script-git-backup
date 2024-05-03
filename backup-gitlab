@@ -45,18 +45,22 @@ getRepos() {
 	REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1" | tr -d '\r\n' | jq '.[].path_with_namespace')"
 	echo "$REPOS"
 	i=1
-	echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
+	#echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
 	while test "$(echo "${REPOS}" | jq -s length)" = "100"
 	do
 		i=$((i + 1))
 		REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1&page=${i}" | tr -d '\r\n' | jq '.[].path_with_namespace')"
 		echo "$REPOS"
-		echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
+		#echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
 	done
 }
 
 
 REPOS="$( getRepos )"
+
+echo "Repositories: $(echo "${REPOS}" | jq -s length)"
+
+echo "${REPOS}" | jq -s . >"${PREFIX}/repos.json"
 
 for rr in ${REPOS}
 do
@@ -75,3 +79,13 @@ do
 	fi
 done
 
+#get deleted repos:
+echo
+echo "Deleted repositories:"
+for r in $(cd "${PREFIX}"; ls -d */*)
+do
+	if ! echo "${REPOS}" | jq -s -e --arg r "${r}" 'index($r)' >/dev/null
+	then
+		echo ${r}
+	fi
+done
