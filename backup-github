@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTPATH="$(readlink -f 2>/dev/null "$0" || perl -MCwd -e 'print Cwd::abs_path shift' "$0")"
 SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
 GITHUB_USER="$1"
