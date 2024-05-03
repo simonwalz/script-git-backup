@@ -42,14 +42,14 @@ fi
 
 getRepos() {
 
-	REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1" | tr -d '\r\n' | jq '.[].path_with_namespace')"
+	REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1&archived=0" | tr -d '\r\n' | jq '.[].path_with_namespace')"
 	echo "$REPOS"
 	i=1
 	#echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
 	while test "$(echo "${REPOS}" | jq -s length)" = "100"
 	do
 		i=$((i + 1))
-		REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1&page=${i}" | tr -d '\r\n' | jq '.[].path_with_namespace')"
+		REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1&archived=0&page=${i}" | tr -d '\r\n' | jq '.[].path_with_namespace')"
 		echo "$REPOS"
 		#echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
 	done
