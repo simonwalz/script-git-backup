@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTPATH="$(readlink -f 2>/dev/null "$0" || perl -MCwd -e 'print Cwd::abs_path shift' "$0")"
 SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
 GITLAB_HOST="$1"
@@ -40,13 +40,27 @@ then
 	GITLAB_URL="${FETCH_PROTO}://${GITLAB_USER}:${GITLAB_TOKEN}@${GITLAB_HOST}/"
 fi
 
-REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1" | php -r 'echo join("\n",array_map(function($a){return $a["path_with_namespace"];},json_decode(file_get_contents("php://stdin"),1)))."\n";')"
+getRepos() {
 
-echo $REPOS
-#exit
+	REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1" | tr -d '\r\n' | jq '.[].path_with_namespace')"
+	echo "$REPOS"
+	i=1
+	echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
+	while test "$(echo "${REPOS}" | jq -s length)" = "100"
+	do
+		i=$((i + 1))
+		REPOS="$(curl ${CURL_OPTS} -s -f -H "Private-token: $GITLAB_TOKEN" "${GITLAB_HTTP}api/v4/projects?per_page=100&simple=1&membership=1&page=${i}" | tr -d '\r\n' | jq '.[].path_with_namespace')"
+		echo "$REPOS"
+		echo "LENGTH: $(echo "${REPOS}" | jq -s length)" >&2
+	done
+}
 
-for r in $REPOS
+
+REPOS="$( getRepos )"
+
+for rr in ${REPOS}
 do
+	r="$(echo "${rr}" | jq -r .)"
 	ignore=0
 	if test "x${EXCLUDE_REPOS}" != "x"; then
 		echo "${r}" | grep -E "${EXCLUDE_REPOS}" >/dev/null
