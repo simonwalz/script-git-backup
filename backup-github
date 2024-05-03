@@ -14,7 +14,7 @@ fi
 
 GITHUB_URL="https://github.com/"
 
-REPOS="$(curl -s -f "https://api.github.com/users/${GITHUB_USER}/repos" | php -r 'echo join("\n",array_map(function($a){return $a["full_name"];},json_decode(file_get_contents("php://stdin"),1)))."\n";')"
+REPOS="$(curl -s -f "https://api.github.com/users/${GITHUB_USER}/repos" | jq -r '.[].full_name')"
 
 for r in $REPOS
 do
